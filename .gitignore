@@ -1,1 +1,6 @@
 filter
+filter.exe
+build/
+benchmark-data/
+benchmark-output/
+__pycache__/
