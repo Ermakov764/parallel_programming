@@ -15,6 +15,10 @@ struct Kernel
     int div;
 };
 
+constexpr Kernel blur_kernel    = {{ 1,  1,  1,   1,  1,  1,   1,  1,  1}, 9};
+constexpr Kernel sharpen_kernel = {{ 0, -1,  0,  -1,  5, -1,   0, -1,  0}, 1};
+constexpr Kernel edges_kernel   = {{-1, -1, -1,  -1,  8, -1,  -1, -1, -1}, 1};
+
 static int clamp_int(int v, int lo, int hi)
 {
     if (v < lo)
@@ -22,22 +26,6 @@ static int clamp_int(int v, int lo, int hi)
     if (v > hi)
         return hi;
     return v;
-}
-static Kernel blur_kernel()
-{
-    Kernel k = {{1, 1, 1, 1, 1, 1, 1, 1, 1}, 9};
-    return k;
-}
-
-static Kernel sharpen_kernel()
-{
-    Kernel k = {{0, -1, 0, -1, 5, -1, 0, -1, 0}, 1};
-    return k;
-}
-
-static Kernel edges_kernel()
-{
-    return {{-1, -1, -1, -1, 8, -1, -1, -1, -1}, 1};
 }
 
 static void exposure_rows(const Image& src, Image& dst, int y0, int y1)
@@ -112,9 +100,9 @@ static void process_rows(const Image& src, Image& dst, Filter filter, int y0, in
     {
     case Filter::Gray:     return gray_rows(src, dst, y0, y1);
     case Filter::Exposure: return exposure_rows(src, dst, y0, y1);
-    case Filter::Blur:     return conv_rows(src, dst, blur_kernel(), y0, y1);
-    case Filter::Sharpen:  return conv_rows(src, dst, sharpen_kernel(), y0, y1);
-    case Filter::Edges:    return conv_rows(src, dst, edges_kernel(), y0, y1);
+    case Filter::Blur:     return conv_rows(src, dst, blur_kernel, y0, y1);
+    case Filter::Sharpen:  return conv_rows(src, dst, sharpen_kernel, y0, y1);
+    case Filter::Edges:    return conv_rows(src, dst, edges_kernel, y0, y1);
     }
 }
 
