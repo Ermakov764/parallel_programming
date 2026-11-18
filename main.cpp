@@ -5,12 +5,12 @@
 #include "filters.hpp"
 #include "demo.hpp"
 #include <iostream>
-#include <cstdlib>
 static void usage()
 {
     std::cerr
         << "Использование:\n"
         << "  ./filter --demo\n"
+        << "  ./filter --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv\n"
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }

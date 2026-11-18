@@ -138,12 +138,12 @@ Image Transformation::apply(const Image& src, int threads) const
         std::vector<std::thread> pool;
         pool.reserve(static_cast<size_t>(threads));
         try {
-        for (Band band : bands)
-        {
-            pool.emplace_back([&src, &dst, filter, band]() {
-                process_rows(src, dst, filter, band.y0, band.y1);
-            });
-        }
+            for (Band band : bands)
+            {
+                pool.emplace_back([&src, &dst, filter, band]() {
+                    process_rows(src, dst, filter, band.y0, band.y1);
+                });
+            }
         } catch (...) {
             for (auto& worker : pool) worker.join();
             throw;

@@ -9,6 +9,12 @@ dataset=${1:-benchmark-data/fullhd}
 repeats=${REPEATS:-5}
 threads=${THREADS:-"1 2 4 8"}
 [[ "$repeats" =~ ^[1-9][0-9]*$ ]] || { echo 'REPEATS must be positive' >&2; exit 1; }
+has_baseline=false
+for p in $threads; do
+  [[ "$p" =~ ^[1-9][0-9]*$ ]] || { echo 'THREADS must contain positive integers' >&2; exit 1; }
+  [[ "$p" != 1 ]] || has_baseline=true
+done
+[[ "$has_baseline" == true ]] || { echo 'THREADS must include 1' >&2; exit 1; }
 mkdir -p benchmark-output
 root=$(mktemp -d benchmark-output/run-XXXXXXXX)
 csv="$root/raw.csv"
@@ -28,3 +34,5 @@ for mode in image stage pipeline; do
   done
 done
 "${PYTHON:-python}" scripts/summarize_benchmark.py "$csv"
+printf 'Dataset: %s\nBinary: %s\nRepeats: %s\nThreads: %s\n' "$dataset" "$binary" "$repeats" "$threads" >> "$root/environment.txt"
+if command -v sha256sum >/dev/null 2>&1; then sha256sum "$binary" >> "$root/environment.txt"; fi
