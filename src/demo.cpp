@@ -49,6 +49,8 @@ int run_demo()
     Image blur = Transformation(Filter::Blur).apply(demo, 1);
     Image sharp = Transformation(Filter::Sharpen).apply(demo, 1);
     Image gray = Transformation(Filter::Gray).apply(demo, 1);
+    Image exposure = Transformation(Filter::Exposure).apply(demo, 1);
+    Image edges = Transformation(Filter::Edges).apply(demo, 1);
     Image blur4 = Transformation(Filter::Blur).apply(demo, 4);
 
     const struct SaveItem
@@ -60,6 +62,8 @@ int run_demo()
         {"samples/blur.bmp", &blur},
         {"samples/sharpen.bmp", &sharp},
         {"samples/gray.bmp", &gray},
+        {"samples/exposure.bmp", &exposure},
+        {"samples/edges.bmp", &edges},
         {"samples/blur_4.bmp", &blur4},
     };
 

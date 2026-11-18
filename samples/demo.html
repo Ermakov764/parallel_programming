@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Фильтры 3×3</title>
+<title>Фильтры изображений</title>
 <style>
   body { margin: 0; background: #f3efe6; color: #1c1915; font: 17px/1.45 sans-serif; }
   main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
@@ -16,12 +16,14 @@
 </head>
 <body>
 <main>
-<h1>Фильтры 3×3</h1>
+<h1>Фильтры изображений</h1>
 <div class="grid">
   <figure><img src="input.bmp" alt="исходный кадр"><figcaption><b>Исходный</b>один кадр</figcaption></figure>
   <figure><img src="blur.bmp" alt="размытие"><figcaption><b>Размытие</b>один поток, все строки</figcaption></figure>
   <figure><img src="sharpen.bmp" alt="резкость"><figcaption><b>Резкость</b>один поток</figcaption></figure>
   <figure><img src="gray.bmp" alt="серый"><figcaption><b>Серый</b>один поток</figcaption></figure>
+  <figure><img src="exposure.bmp" alt="осветлённый кадр"><figcaption><b>Экспозиция +1 EV</b>значения каналов удвоены</figcaption></figure>
+  <figure><img src="edges.bmp" alt="границы цветных областей"><figcaption><b>Контуры</b>ядро 3×3 выделяет перепады яркости каналов</figcaption></figure>
   <figure><img src="blur_4.bmp" alt="размытие в 4 потока"><figcaption><b>Размытие, 4 потока</b>те же полосы строк, картинка как у одного потока</figcaption></figure>
 </div>
 </main>
