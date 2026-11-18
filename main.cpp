@@ -1,4 +1,6 @@
 #include "bmp.hpp"
+#include "batch.hpp"
+#include <exception>
 #include "filters.hpp"
 #include "demo.hpp"
 #include <iostream>
@@ -11,8 +13,10 @@ static void usage()
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }
-int main(int argc, char** argv)
+static int run(int argc, char** argv)
 {
+    if (argc >= 2 && std::string(argv[1]) == "--batch")
+        return run_batch(argc, argv);
     if (argc >= 2 && std::string(argv[1]) == "--demo")
         return run_demo();
 
@@ -59,4 +63,9 @@ int main(int argc, char** argv)
     }
     std::cout << "записан " << output_path << '\n';
     return 0;
+}
+
+int main(int argc, char** argv) {
+    try { return run(argc, argv); }
+    catch (const std::exception& error) { std::cerr << error.what() << "\n"; return 1; }
 }
