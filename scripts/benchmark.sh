@@ -28,7 +28,7 @@ for mode in file-first stage-first pipeline; do
       row=$("$binary" --batch "$dataset" "$destination" "$mode" "$p" --csv)
       if ((r > 0)); then printf '%s,%s\n' "$r" "$row" >> "$csv"; fi
       # Delete only the known, generated output directory to keep disk use bounded.
-      rm -f -- "$destination"/*.bmp
+      rm -f -- "$destination"/*.[bB][mM][pP]
       rmdir -- "$destination"
     done
   done
