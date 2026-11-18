@@ -61,10 +61,32 @@ class PipelineTests(unittest.TestCase):
                     out = root / f'{mode}-{threads}'
                     command = [BINARY, '--batch', source, out, mode, str(threads), '--csv']
                     result = subprocess.run(command, check=True, capture_output=True, text=True)
-                    self.assertEqual(int(result.stdout.split(',')[2]), 5)
+                    fields = result.stdout.strip().split(',')
+                    self.assertEqual(fields[:3], [mode, str(threads), '5'])
+                    self.assertEqual(len(fields), 7)
+                    self.assertTrue(all(float(value) >= 0 for value in fields[3:]))
                     for path in out.glob('*.bmp'):
                         self.assertEqual(pixels(path), expected[path.name])
                     self.assertNotEqual(subprocess.run(command, capture_output=True).returncode, 0)
+
+    def test_invalid_arguments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / 'input'
+            generator.generate(source, 1, 3, 3, 42)
+            image = next(source.glob('*.bmp'))
+            output = Path(tmp) / 'output'
+            batch = [BINARY, '--batch', source, output]
+            commands = [batch + ['bad-mode', '1', '--csv'],
+                        batch + ['image', '1', '--bad-flag'],
+                        batch + ['image', '1']]
+            for threads in ('0', '-2', '2x', 'abc'):
+                commands.append([BINARY, image, output, 'blur', threads])
+                commands.append(batch + ['image', threads, '--csv'])
+            for command in commands:
+                with self.subTest(command=command):
+                    result = subprocess.run(command, capture_output=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse(output.exists())
 
     def test_invalid_bmp(self):
         with tempfile.TemporaryDirectory() as tmp:
