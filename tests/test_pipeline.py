@@ -93,6 +93,14 @@ class PipelineTests(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertFalse(output.exists())
 
+    def test_demo_rejects_extra_arguments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            samples = Path(tmp) / 'samples'
+            samples.mkdir()
+            result = subprocess.run([BINARY, '--demo', 'unexpected'], cwd=tmp, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(list(samples.iterdir()), [])
+
     def test_invalid_bmp(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'bad.bmp'

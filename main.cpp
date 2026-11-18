@@ -58,7 +58,10 @@ static int run(int argc, char** argv)
     if (argc >= 2 && std::string(argv[1]) == "--batch")
         return run_batch_command(argc, argv);
     if (argc >= 2 && std::string(argv[1]) == "--demo")
+    {
+        if (argc != 2) throw std::invalid_argument("usage: --demo");
         return run_demo();
+    }
 
     if (argc != 4 && argc != 5)
     {
