@@ -108,6 +108,24 @@ PYTHON=python3 REPEATS=3 THREADS="1 2 4 8" bash scripts/benchmark.sh benchmark-d
 | [demo.cpp](src/demo.cpp), [samples](samples/) | Генерация демонстрационных изображений и просмотр результатов. |
 | [scripts](scripts/), [tests](tests/) | Генератор данных, сценарий измерений и попиксельные проверки. |
 
+### Архитектура проекта
+
+```mermaid
+flowchart TD
+    G["generate_dataset.py<br/>Создаёт набор BMP"] --> DATA["Входные изображения"]
+    DATA --> APP["Программа на C++17<br/>BMP → пять фильтров → BMP"]
+
+    BENCH["benchmark.sh<br/>Перебирает режимы и число потоков"] -->|"запускает --batch"| APP
+    APP -->|"обработанные кадры"| OUT["Выходные BMP"]
+    APP -->|"замеры, которые сохраняет benchmark.sh"| RAW["raw.csv"]
+    RAW --> S["summarize_benchmark.py<br/>Медиана, ускорение и эффективность"]
+    S --> R["summary.csv<br/>Данные для отчёта"]
+
+    T["test_pipeline.py"] -->|"запускает программу"| APP
+    OUT --> CHECK["Попиксельное сравнение"]
+    T -->|"эталонный расчёт на Python"| CHECK
+```
+
 ## Проверка корректности
 
 После сборки выполните `python3 -m unittest discover -s tests -v` (в Windows — `python -m unittest discover -s tests -v`). Тесты сравнивают отдельные фильтры и полную цепочку с независимым расчётом на Python. Проверяются все три режима при 1, 2, 4 и 8 потоках, выравнивание строк BMP, обработка повреждённого файла и защита существующих результатов.
