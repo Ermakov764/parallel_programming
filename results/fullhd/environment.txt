@@ -1,0 +1,11 @@
+UTC: 2026-11-18T04:14:52.102697+00:00
+Platform: Windows-10-10.0.26300-SP0
+CPU: Intel64 Family 6 Model 140 Stepping 1, GenuineIntel
+Python: 3.10.6
+Build: optimized release; see Makefile / build.cmd.
+Baseline: image mode, 1 thread. Warm filesystem cache; startup excluded.
+Dataset: benchmark-data/single-fullhd
+Binary: ./filter
+Repeats: 3
+Threads: 1 2 4 8
+b24d23d2239a31f80c78956aa3dc78a6ff3a31ac6fa0a952c16d644176939923 *./filter
