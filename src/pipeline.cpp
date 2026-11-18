@@ -23,10 +23,11 @@ void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) 
             for (auto& image : images) image = stage.apply(image, threads);
         return;
     }
-    // Only one task per image can be active. Different images may occupy
-    // different stages concurrently, with a fixed total worker budget.
-    std::deque<std::pair<size_t, size_t>> ready;
-    for (size_t i = 0; i < images.size(); ++i) ready.emplace_back(i, 0);
+    // Для изображения доступен только один этап: следующий появляется
+    // в очереди после завершения предыдущего. Разные изображения независимы.
+    struct Task { size_t image; size_t stage; };
+    std::deque<Task> ready;
+    for (size_t i = 0; i < images.size(); ++i) ready.push_back({i, 0});
     std::mutex mutex;
     std::condition_variable changed;
     size_t remaining = images.size();
@@ -41,10 +42,11 @@ void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) 
                 const auto task = ready.front();
                 ready.pop_front();
                 lock.unlock();
-                images[task.first] = stages_[task.second].apply(images[task.first], 1);
+                // Расчёт выполняется без блокировки общей очереди.
+                images[task.image] = stages_[task.stage].apply(images[task.image], 1);
                 lock.lock();
-                if (task.second + 1 < stages_.size())
-                    ready.emplace_front(task.first, task.second + 1);
+                if (task.stage + 1 < stages_.size())
+                    ready.push_front({task.image, task.stage + 1});
                 else --remaining;
                 changed.notify_all();
             }
