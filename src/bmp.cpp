@@ -160,6 +160,7 @@ bool save_bmp(const std::string& path, const Image& image, std::string& error)
             file.write(pad, padding);
     }
 
+    file.close();
     if (!file)
     {
         error = "ошибка записи " + path;
