@@ -55,7 +55,7 @@ class PipelineTests(unittest.TestCase):
             for path in sorted(source.glob('*.bmp')):
                 image = pixels(path)
                 for name in ('blur', 'sharpen', 'gray', 'exposure', 'edges'):
-                    for threads in (1, 2, 8):
+                    for threads in (1, 2, 4, 8):
                         out = root / 'single.bmp'
                         subprocess.run([BINARY, path, out, name, str(threads)], check=True, capture_output=True)
                         self.assertEqual(pixels(out), reference(pixels(path), name))
