@@ -8,21 +8,8 @@
 #include <thread>
 #include <utility>
 
-Pipeline::Pipeline(std::vector<Transformation> stages) : stages_(std::move(stages)) {}
-
-void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) const {
-    if (threads < 1) throw std::invalid_argument("threads must be positive");
-    if (images.empty() || stages_.empty()) return;
-    if (mode == ExecutionMode::FileFirst) {
-        for (auto& image : images)
-            for (const auto& stage : stages_) image = stage.apply(image, threads);
-        return;
-    }
-    if (mode == ExecutionMode::StageFirst) {
-        for (const auto& stage : stages_)
-            for (auto& image : images) image = stage.apply(image, threads);
-        return;
-    }
+static void run_pipelined(std::vector<Image>& images, const std::vector<Transformation>& stages,
+                          int threads) {
     // Для изображения доступен только один этап: следующий появляется
     // в очереди после завершения предыдущего. Разные изображения независимы.
     struct Task { size_t image; size_t stage; };
@@ -43,9 +30,9 @@ void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) 
                 ready.pop_front();
                 lock.unlock();
                 // Расчёт выполняется без блокировки общей очереди.
-                images[task.image] = stages_[task.stage].apply(images[task.image], 1);
+                images[task.image] = stages[task.stage].apply(images[task.image], 1);
                 lock.lock();
-                if (task.stage + 1 < stages_.size())
+                if (task.stage + 1 < stages.size())
                     ready.push_front({task.image, task.stage + 1});
                 else --remaining;
                 changed.notify_all();
@@ -69,4 +56,22 @@ void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) 
     }
     for (auto& worker : workers) worker.join();
     if (failure) std::rethrow_exception(failure);
+}
+
+Pipeline::Pipeline(std::vector<Transformation> stages) : stages_(std::move(stages)) {}
+
+void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) const {
+    if (threads < 1) throw std::invalid_argument("threads must be positive");
+    if (images.empty() || stages_.empty()) return;
+    if (mode == ExecutionMode::FileFirst) {
+        for (auto& image : images)
+            for (const auto& stage : stages_) image = stage.apply(image, threads);
+        return;
+    }
+    if (mode == ExecutionMode::StageFirst) {
+        for (const auto& stage : stages_)
+            for (auto& image : images) image = stage.apply(image, threads);
+        return;
+    }
+    run_pipelined(images, stages_, threads);
 }
