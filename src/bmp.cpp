@@ -1,6 +1,7 @@
 #include "bmp.hpp"
 #include <fstream>
 #include <utility>
+#include <limits>
 static uint16_t read_u16(const uint8_t* p)
 {
     return static_cast<uint16_t>(p[0] | (p[1] << 8));
@@ -8,7 +9,7 @@ static uint16_t read_u16(const uint8_t* p)
 
 static uint32_t read_u32(const uint8_t* p)
 {
-    return static_cast<uint32_t>(p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24));
+    return static_cast<uint32_t>(uint32_t(p[0]) | (uint32_t(p[1]) << 8) | (uint32_t(p[2]) << 16) | (uint32_t(p[3]) << 24));
 }
 
 static void append_u16(std::vector<uint8_t>& b, uint16_t v)
@@ -78,6 +79,14 @@ bool load_bmp(const std::string& path, Image& out, std::string& error)
         return false;
     }
 
+    const uint64_t stride64 = (uint64_t(width) * 3 + 3) & ~uint64_t(3);
+    file.seekg(0, std::ios::end);
+    const auto length = file.tellg();
+    if (stride64 > uint64_t(std::numeric_limits<int>::max()) ||
+        length < 0 || uint64_t(length) < uint64_t(pixel_offset) + stride64 * uint64_t(height)) {
+        error = "invalid BMP dimensions or truncated pixel data";
+        return false;
+    }
     file.seekg(pixel_offset, std::ios::beg);
     Image image(width, height);
     const int stride = row_stride(width);
