@@ -2,7 +2,7 @@
 #include "filters.hpp"
 #include <vector>
 
-enum class ExecutionMode { Image, Stage, Pipeline };
+enum class ExecutionMode { FileFirst, StageFirst, Pipeline };
 
 // Each stage consumes the previous stage's output. The same chain is used
 // for all execution modes, so their results are directly comparable.

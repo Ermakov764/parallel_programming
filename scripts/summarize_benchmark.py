@@ -11,8 +11,10 @@ with source.open(newline='') as stream:
     rows = list(csv.DictReader(stream))
 groups = {}
 for row in rows:
-    groups.setdefault((row['mode'], int(row['threads'])), []).append(row)
-baseline = groups.get(('image', 1))
+    # Earlier benchmark runs used image and stage as mode names.
+    mode = {'image': 'file-first', 'stage': 'stage-first'}.get(row['mode'], row['mode'])
+    groups.setdefault((mode, int(row['threads'])), []).append(row)
+baseline = groups.get(('file-first', 1))
 if not baseline:
     raise SystemExit('THREADS must include 1 for the sequential baseline')
 output = source.with_name('summary.csv')
@@ -33,5 +35,5 @@ source.with_name('environment.txt').write_text(
     f'UTC: {datetime.now(timezone.utc).isoformat()}\nPlatform: {platform.platform()}\n'
     f'CPU: {platform.processor()}\nPython: {platform.python_version()}\n'
     'Build: optimized release; see Makefile / build.cmd.\n'
-    'Baseline: image mode, 1 thread. Warm filesystem cache; startup excluded.\n', encoding='utf-8')
+    'Baseline: file-first mode, 1 thread. Warm filesystem cache; startup excluded.\n', encoding='utf-8')
 print(output)

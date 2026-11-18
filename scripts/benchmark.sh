@@ -20,7 +20,7 @@ root=$(mktemp -d benchmark-output/run-XXXXXXXX)
 csv="$root/raw.csv"
 printf 'repeat,mode,threads,images,read_ms,process_ms,write_ms,total_ms\n' > "$csv"
 echo "Results: $root" >&2
-for mode in image stage pipeline; do
+for mode in file-first stage-first pipeline; do
   # An untimed warmup per mode and worker count; each run has fresh output files.
   for p in $threads; do
     for ((r=0; r<=repeats; r++)); do

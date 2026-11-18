@@ -12,7 +12,7 @@ static void usage()
     std::cerr
         << "Использование:\n"
         << "  ./filter --demo\n"
-        << "  ./filter --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv|--cpu-csv\n"
+        << "  ./filter --batch INPUT_DIR OUTPUT_DIR file-first|stage-first|pipeline THREADS --csv|--cpu-csv\n"
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }
@@ -27,8 +27,8 @@ static int parse_threads(const std::string& value)
 
 static ExecutionMode parse_mode(const std::string& value)
 {
-    if (value == "image") return ExecutionMode::Image;
-    if (value == "stage") return ExecutionMode::Stage;
+    if (value == "file-first") return ExecutionMode::FileFirst;
+    if (value == "stage-first") return ExecutionMode::StageFirst;
     if (value == "pipeline") return ExecutionMode::Pipeline;
     throw std::invalid_argument("unknown mode");
 }
@@ -36,7 +36,7 @@ static ExecutionMode parse_mode(const std::string& value)
 static int run_batch_command(int argc, char** argv)
 {
     if (argc != 7)
-        throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv|--cpu-csv");
+        throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR file-first|stage-first|pipeline THREADS --csv|--cpu-csv");
     const std::string mode_name = argv[4];
     const ExecutionMode mode = parse_mode(mode_name);
     const int threads = parse_threads(argv[5]);

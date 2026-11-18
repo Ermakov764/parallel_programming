@@ -56,7 +56,7 @@ class PipelineTests(unittest.TestCase):
                         self.assertEqual(pixels(out), reference(pixels(path), name))
                     image = reference(image, name)
                 expected[path.name] = image
-            for mode in ('image', 'stage', 'pipeline'):
+            for mode in ('file-first', 'stage-first', 'pipeline'):
                 for threads in (1, 2, 4, 8):
                     out = root / f'{mode}-{threads}'
                     command = [BINARY, '--batch', source, out, mode, str(threads), '--csv']
@@ -77,11 +77,11 @@ class PipelineTests(unittest.TestCase):
             output = Path(tmp) / 'output'
             batch = [BINARY, '--batch', source, output]
             commands = [batch + ['bad-mode', '1', '--csv'],
-                        batch + ['image', '1', '--bad-flag'],
-                        batch + ['image', '1']]
+                        batch + ['file-first', '1', '--bad-flag'],
+                        batch + ['file-first', '1']]
             for threads in ('0', '-2', '2x', 'abc'):
                 commands.append([BINARY, image, output, 'blur', threads])
-                commands.append(batch + ['image', threads, '--csv'])
+                commands.append(batch + ['file-first', threads, '--csv'])
             for command in commands:
                 with self.subTest(command=command):
                     result = subprocess.run(command, capture_output=True)

@@ -13,12 +13,12 @@ Pipeline::Pipeline(std::vector<Transformation> stages) : stages_(std::move(stage
 void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) const {
     if (threads < 1) throw std::invalid_argument("threads must be positive");
     if (images.empty() || stages_.empty()) return;
-    if (mode == ExecutionMode::Image) {
+    if (mode == ExecutionMode::FileFirst) {
         for (auto& image : images)
             for (const auto& stage : stages_) image = stage.apply(image, threads);
         return;
     }
-    if (mode == ExecutionMode::Stage) {
+    if (mode == ExecutionMode::StageFirst) {
         for (const auto& stage : stages_)
             for (auto& image : images) image = stage.apply(image, threads);
         return;
