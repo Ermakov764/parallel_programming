@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s dotglob
 # Run from any directory. Paths may contain spaces and Unicode.
 cd "$(dirname "$0")/.."
 binary=${BINARY:-./filter}
