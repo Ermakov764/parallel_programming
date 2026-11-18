@@ -36,4 +36,4 @@ source.with_name('environment.txt').write_text(
     f'CPU: {platform.processor()}\nPython: {platform.python_version()}\n'
     'Build: optimized release; see Makefile / build.cmd.\n'
     'Baseline: file-first mode, 1 thread. Warm filesystem cache; startup excluded.\n', encoding='utf-8')
-print(output)
+print(output.as_posix())

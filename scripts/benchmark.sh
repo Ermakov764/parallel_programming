@@ -19,14 +19,21 @@ done
 mkdir -p benchmark-output
 root=$(mktemp -d benchmark-output/run-XXXXXXXX)
 csv="$root/raw.csv"
-printf 'repeat,mode,threads,images,read_ms,process_ms,write_ms,total_ms\n' > "$csv"
+flag=--csv
+header=repeat,mode,threads,images,read_ms,process_ms,write_ms,total_ms
+case ${MEASURE_CPU:-0} in
+  0) ;;
+  1) flag=--cpu-csv; header+=,cpu_ms,filter_cpu_ms ;;
+  *) echo 'MEASURE_CPU must be 0 or 1' >&2; exit 1 ;;
+esac
+printf '%s\n' "$header" > "$csv"
 echo "Results: $root" >&2
-for mode in file-first stage-first pipeline; do
+for mode in ${MODES:-file-first stage-first pipeline}; do
   # An untimed warmup per mode and worker count; each run has fresh output files.
   for p in $threads; do
     for ((r=0; r<=repeats; r++)); do
       destination="$root/${mode}-${p}-${r}"
-      row=$("$binary" --batch "$dataset" "$destination" "$mode" "$p" --csv)
+      row=$("$binary" --batch "$dataset" "$destination" "$mode" "$p" "$flag")
       if ((r > 0)); then printf '%s,%s\n' "$r" "$row" >> "$csv"; fi
       # Delete only the known, generated output directory to keep disk use bounded.
       rm -f -- "$destination"/*.[bB][mM][pP]
