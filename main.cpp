@@ -12,7 +12,7 @@ static void usage()
     std::cerr
         << "Использование:\n"
         << "  ./filter --demo\n"
-        << "  ./filter --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv\n"
+        << "  ./filter --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv|--cpu-csv\n"
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }
@@ -36,17 +36,20 @@ static ExecutionMode parse_mode(const std::string& value)
 static int run_batch_command(int argc, char** argv)
 {
     if (argc != 7)
-        throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv");
+        throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv|--cpu-csv");
     const std::string mode_name = argv[4];
     const ExecutionMode mode = parse_mode(mode_name);
     const int threads = parse_threads(argv[5]);
-    if (std::string(argv[6]) != "--csv") throw std::invalid_argument("expected --csv");
+    const bool measure_cpu = std::string(argv[6]) == "--cpu-csv";
+    if (!measure_cpu && std::string(argv[6]) != "--csv") throw std::invalid_argument("expected --csv");
 
     const auto result = run_batch(std::filesystem::u8path(argv[2]), std::filesystem::u8path(argv[3]),
-                                  mode, threads);
+                                  mode, threads, measure_cpu);
     std::cout << std::fixed << std::setprecision(3) << mode_name << ',' << threads << ','
               << result.images << ',' << result.read_ms << ',' << result.process_ms << ','
-              << result.write_ms << ',' << result.total_ms << '\n';
+              << result.write_ms << ',' << result.total_ms;
+    if (measure_cpu) std::cout << ',' << result.cpu_ms << ',' << result.filter_cpu_ms;
+    std::cout << '\n';
     return 0;
 }
 
