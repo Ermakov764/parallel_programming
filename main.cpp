@@ -9,9 +9,7 @@ static void usage()
         << "Использование:\n"
         << "  ./filter --demo\n"
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
-        << "\n"
-        << "Потоки имеют смысл для размытия: 1 или 4.\n"
-        << "Резкость и серый считаются в одном потоке.\n";
+        << "\nThreads: positive integer, supported by every filter.\n";
 }
 int main(int argc, char** argv)
 {
@@ -53,7 +51,7 @@ int main(int argc, char** argv)
     }
     std::cout << "кадр " << image.width << "x" << image.height << '\n';
 
-    Image result = apply_filter(image, filter, threads);
+    Image result = Transformation(filter).apply(image, threads);
     if (!save_bmp(output_path, result, error))
     {
         std::cerr << error << '\n';

@@ -8,6 +8,12 @@ enum class Filter
     Gray      // серый, соседние пиксели не нужны
 };
 
-// Полоса строк для одного потока: [y0, y1).
-Image apply_filter(const Image&, Filter, int);
+// A transformation owns its filter; execution policy is supplied by the caller.
+class Transformation {
+public:
+    explicit Transformation(Filter filter) : filter_(filter) {}
+    Image apply(const Image& source, int threads = 1) const;
+private:
+    Filter filter_;
+};
 bool parse_filter(const std::string&, Filter&);

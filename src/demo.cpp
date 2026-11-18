@@ -46,10 +46,10 @@ int run_demo()
 {
     Image demo = make_demo_image();
     std::string error;
-    Image blur = apply_filter(demo, Filter::Blur, 1);
-    Image sharp = apply_filter(demo, Filter::Sharpen, 1);
-    Image gray = apply_filter(demo, Filter::Gray, 1);
-    Image blur4 = apply_filter(demo, Filter::Blur, 4);
+    Image blur = Transformation(Filter::Blur).apply(demo, 1);
+    Image sharp = Transformation(Filter::Sharpen).apply(demo, 1);
+    Image gray = Transformation(Filter::Gray).apply(demo, 1);
+    Image blur4 = Transformation(Filter::Blur).apply(demo, 4);
 
     const struct SaveItem
     {

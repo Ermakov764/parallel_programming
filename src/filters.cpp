@@ -1,5 +1,6 @@
 #include "filters.hpp"
 #include <thread>
+#include <stdexcept>
 struct Band
 {
     int y0;
@@ -115,16 +116,15 @@ static std::vector<Band> make_bands(int height, int threads)
     return bands;
 }
 
-Image apply_filter(const Image& src, Filter filter, int threads)
+Image Transformation::apply(const Image& src, int threads) const
 {
+    const Filter filter = filter_;
+    if (src.width <= 0 || src.height <= 0)
+        throw std::invalid_argument("empty source image");
     if (threads < 1)
         threads = 1;
     if (threads > src.height)
         threads = src.height;
-    // Резкость и серый на этом этапе считаются одним потоком.
-    if (filter != Filter::Blur)
-        threads = 1;
-
     Image dst(src.width, src.height); // отдельный выходной буфер
 
     if (threads == 1)
