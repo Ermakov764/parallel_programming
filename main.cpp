@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include "filters.hpp"
 #include "demo.hpp"
+#include <filesystem>
+#include <iomanip>
 #include <iostream>
 static void usage()
 {
@@ -14,10 +16,44 @@ static void usage()
         << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }
+static int parse_threads(const std::string& value)
+{
+    size_t used = 0;
+    const int threads = std::stoi(value, &used);
+    if (used != value.size() || threads < 1)
+        throw std::invalid_argument("threads must be a positive integer");
+    return threads;
+}
+
+static ExecutionMode parse_mode(const std::string& value)
+{
+    if (value == "image") return ExecutionMode::Image;
+    if (value == "stage") return ExecutionMode::Stage;
+    if (value == "pipeline") return ExecutionMode::Pipeline;
+    throw std::invalid_argument("unknown mode");
+}
+
+static int run_batch_command(int argc, char** argv)
+{
+    if (argc != 7)
+        throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv");
+    const std::string mode_name = argv[4];
+    const ExecutionMode mode = parse_mode(mode_name);
+    const int threads = parse_threads(argv[5]);
+    if (std::string(argv[6]) != "--csv") throw std::invalid_argument("expected --csv");
+
+    const auto result = run_batch(std::filesystem::u8path(argv[2]), std::filesystem::u8path(argv[3]),
+                                  mode, threads);
+    std::cout << std::fixed << std::setprecision(3) << mode_name << ',' << threads << ','
+              << result.images << ',' << result.read_ms << ',' << result.process_ms << ','
+              << result.write_ms << ',' << result.total_ms << '\n';
+    return 0;
+}
+
 static int run(int argc, char** argv)
 {
     if (argc >= 2 && std::string(argv[1]) == "--batch")
-        return run_batch(argc, argv);
+        return run_batch_command(argc, argv);
     if (argc >= 2 && std::string(argv[1]) == "--demo")
         return run_demo();
 
@@ -36,19 +72,7 @@ static int run(int argc, char** argv)
         return 1;
     }
 
-    int threads = 1;
-    if (argc == 5)
-    {
-        size_t used = 0;
-        threads = std::stoi(argv[4], &used);
-        if (used != std::string(argv[4]).size())
-            throw std::invalid_argument("invalid thread count");
-        if (threads < 1)
-        {
-            std::cerr << "число потоков должно быть >= 1\n";
-            return 1;
-        }
-    }
+    const int threads = argc == 5 ? parse_threads(argv[4]) : 1;
 
     Image image;
     std::string error;

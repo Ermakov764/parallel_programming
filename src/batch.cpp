@@ -1,34 +1,18 @@
 #include "batch.hpp"
 #include "bmp.hpp"
-#include "pipeline.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cctype>
 #include <filesystem>
-#include <iomanip>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
-int run_batch(int argc, char** argv) {
-    namespace fs = std::filesystem;
+namespace fs = std::filesystem;
+
+BatchResult run_batch(const fs::path& input, const fs::path& output, ExecutionMode mode, int threads) {
     using Clock = std::chrono::steady_clock;
-    if (argc != 7) throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv");
-    const fs::path input = fs::u8path(argv[2]);
-    const fs::path output = fs::u8path(argv[3]);
     if (fs::weakly_canonical(input) == fs::weakly_canonical(output))
         throw std::invalid_argument("input and output directories must differ");
-    const std::string mode_name = argv[4];
-    ExecutionMode mode;
-    if (mode_name == "image") mode = ExecutionMode::Image;
-    else if (mode_name == "stage") mode = ExecutionMode::Stage;
-    else if (mode_name == "pipeline") mode = ExecutionMode::Pipeline;
-    else throw std::invalid_argument("unknown mode");
-    size_t used = 0;
-    const int threads = std::stoi(argv[5], &used);
-    if (used != std::string(argv[5]).size() || threads < 1)
-        throw std::invalid_argument("threads must be a positive integer");
-    if (std::string(argv[6]) != "--csv") throw std::invalid_argument("expected --csv");
     std::vector<fs::path> paths;
     for (const auto& entry : fs::directory_iterator(input)) {
         std::string ext = entry.path().extension().string();
@@ -53,7 +37,6 @@ int run_batch(int argc, char** argv) {
         if (!save_bmp((output / paths[i].filename()).u8string(), images[i], error)) throw std::runtime_error(error);
     const auto saved = Clock::now();
     auto ms = [](auto a, auto b) { return std::chrono::duration<double, std::milli>(b - a).count(); };
-    std::cout << std::fixed << std::setprecision(3) << mode_name << ',' << threads << ',' << paths.size() << ','
-              << ms(start, loaded) << ',' << ms(loaded, processed) << ',' << ms(processed, saved) << ',' << ms(start, saved) << '\n';
-    return 0;
+    return {paths.size(), ms(start, loaded), ms(loaded, processed),
+            ms(processed, saved), ms(start, saved)};
 }
