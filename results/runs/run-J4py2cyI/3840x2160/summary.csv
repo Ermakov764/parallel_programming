@@ -1,0 +1,9 @@
+mode,threads,scope,median_ms,min_ms,max_ms,speedup,efficiency,images_per_second
+file-first,1,process_ms,565.458,565.328,566.099,1.0,1.0,1.768
+file-first,1,total_ms,600.596,599.674,601.283,1.0,1.0,1.665
+file-first,2,process_ms,316.933,314.591,317.654,1.7842,0.8921,3.155
+file-first,2,total_ms,355.795,352.381,357.267,1.688,0.844,2.811
+file-first,4,process_ms,179.684,177.872,180.376,3.147,0.7867,5.565
+file-first,4,total_ms,217.34,214.546,217.4,2.7634,0.6908,4.601
+file-first,8,process_ms,172.15,161.588,172.789,3.2847,0.4106,5.809
+file-first,8,total_ms,209.365,200.32,211.955,2.8687,0.3586,4.776
