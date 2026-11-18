@@ -73,7 +73,8 @@ bool load_bmp(const std::string& path, Image& out, std::string& error)
         error = "нужен несжатый BMP, 24 бита на пиксель";
         return false;
     }
-    if (pixel_offset < 54)
+    const uint32_t dib_size = read_u32(header + 14);
+    if (dib_size < 40 || uint64_t(pixel_offset) < 14u + uint64_t(dib_size))
     {
         error = "некорректное смещение пикселей";
         return false;

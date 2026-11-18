@@ -101,6 +101,20 @@ class PipelineTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertEqual(list(samples.iterdir()), [])
 
+    def test_invalid_dib_size(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            generator.generate(root / 'input', 1, 3, 3, 42)
+            path = next((root / 'input').glob('*.bmp'))
+            data = bytearray(path.read_bytes())
+            for size in (0, 124):
+                with self.subTest(size=size):
+                    struct.pack_into('<I', data, 14, size)
+                    path.write_bytes(data)
+                    result = subprocess.run([BINARY, path, root / 'out.bmp', 'gray'], capture_output=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse((root / 'out.bmp').exists())
+
     def test_invalid_bmp(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'bad.bmp'
