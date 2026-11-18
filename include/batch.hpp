@@ -9,7 +9,9 @@ struct BatchResult {
     double process_ms;
     double write_ms;
     double total_ms;
+    double cpu_ms;
+    double filter_cpu_ms;
 };
 
 BatchResult run_batch(const std::filesystem::path& input, const std::filesystem::path& output,
-                      ExecutionMode mode, int threads);
+                      ExecutionMode mode, int threads, bool measure_cpu = false);
