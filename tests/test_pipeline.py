@@ -70,6 +70,7 @@ class PipelineTests(unittest.TestCase):
                     self.assertEqual(fields[:3], [mode, str(threads), '5'])
                     self.assertEqual(len(fields), 7)
                     self.assertTrue(all(float(value) >= 0 for value in fields[3:]))
+                    self.assertEqual({path.name for path in out.glob('*.bmp')}, set(expected))
                     for path in out.glob('*.bmp'):
                         self.assertEqual(pixels(path), expected[path.name])
                     self.assertNotEqual(subprocess.run(command, capture_output=True).returncode, 0)
