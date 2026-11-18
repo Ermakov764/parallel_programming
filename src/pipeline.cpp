@@ -58,6 +58,12 @@ static void run_pipelined(std::vector<Image>& images, const std::vector<Transfor
     if (failure) std::rethrow_exception(failure);
 }
 
+Pipeline Pipeline::standard() {
+    return Pipeline({Transformation(Filter::Blur), Transformation(Filter::Sharpen),
+                     Transformation(Filter::Gray), Transformation(Filter::Exposure),
+                     Transformation(Filter::Edges)});
+}
+
 Pipeline::Pipeline(std::vector<Transformation> stages) : stages_(std::move(stages)) {}
 
 void Pipeline::run(std::vector<Image>& images, ExecutionMode mode, int threads) const {

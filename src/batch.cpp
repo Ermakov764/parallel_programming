@@ -56,9 +56,7 @@ BatchResult run_batch(const fs::path& input, const fs::path& output, ExecutionMo
         if (!load_bmp(paths[i].u8string(), images[i], error)) throw std::runtime_error(error);
     const auto loaded = Clock::now();
     const double loaded_cpu = measure_cpu ? process_cpu_ms() : 0;
-    Pipeline chain({Transformation(Filter::Blur), Transformation(Filter::Sharpen), Transformation(Filter::Gray),
-                    Transformation(Filter::Exposure), Transformation(Filter::Edges)});
-    chain.run(images, mode, threads);
+    Pipeline::standard().run(images, mode, threads);
     const auto processed = Clock::now();
     const double processed_cpu = measure_cpu ? process_cpu_ms() : 0;
     for (size_t i = 0; i < paths.size(); ++i)

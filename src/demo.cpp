@@ -1,4 +1,5 @@
 #include "demo.hpp"
+#include "pipeline.hpp"
 #include "bmp.hpp"
 #include "filters.hpp"
 #include <iostream>
@@ -52,6 +53,22 @@ int run_demo()
     Image exposure = Transformation(Filter::Exposure).apply(demo, 1);
     Image edges = Transformation(Filter::Edges).apply(demo, 1);
     Image blur4 = Transformation(Filter::Blur).apply(demo, 4);
+
+    const Pipeline chain = Pipeline::standard();
+    Image current = demo;
+    for (size_t i = 0; i < chain.stages().size(); ++i)
+    {
+        current = chain.stages()[i].apply(current, 1);
+        if (i == 0) continue; // Первый этап уже показан в blur.bmp.
+        const std::string path = i + 1 == chain.stages().size()
+            ? "samples/combined.bmp"
+            : "samples/stage-" + std::to_string(i + 1) + ".bmp";
+        if (!save_bmp(path, current, error))
+        {
+            std::cerr << error << '\n';
+            return 1;
+        }
+    }
 
     const struct SaveItem
     {

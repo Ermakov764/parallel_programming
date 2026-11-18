@@ -2,29 +2,42 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Фильтры изображений</title>
 <style>
   body { margin: 0; background: #f3efe6; color: #1c1915; font: 17px/1.45 sans-serif; }
   main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
   h1 { font-size: 28px; margin: 0 0 18px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
   figure { margin: 0; min-width: 0; background: white; padding: 10px; }
   img { width: 100%; height: auto; display: block; }
   figcaption { margin-top: 8px; }
   figcaption b { display: block; }
+  .detail { height: 80px; background-size: 15360px 8640px; background-position: -1552px -1400px; image-rendering: pixelated; }
 </style>
 </head>
 <body>
 <main>
 <h1>Фильтры изображений</h1>
+<p>Под первыми тремя кадрами показан один и тот же угол красного прямоугольника с увеличением 8×. Все пять фильтров поддерживают обработку по строкам в несколько потоков.</p>
 <div class="grid">
-  <figure><img src="input.bmp" alt="исходный кадр"><figcaption><b>Исходный</b>один кадр</figcaption></figure>
-  <figure><img src="blur.bmp" alt="размытие"><figcaption><b>Размытие</b>один поток, все строки</figcaption></figure>
-  <figure><img src="sharpen.bmp" alt="резкость"><figcaption><b>Резкость</b>один поток</figcaption></figure>
-  <figure><img src="gray.bmp" alt="серый"><figcaption><b>Серый</b>один поток</figcaption></figure>
+  <figure><img src="input.bmp" alt="исходный кадр"><div class="detail" style="background-image:url(input.bmp)" aria-hidden="true"></div><figcaption><b>Исходный</b>угол до обработки</figcaption></figure>
+  <figure><img src="blur.bmp" alt="размытие"><div class="detail" style="background-image:url(blur.bmp)" aria-hidden="true"></div><figcaption><b>Размытие</b>плавный переход на границе</figcaption></figure>
+  <figure><img src="sharpen.bmp" alt="резкость"><div class="detail" style="background-image:url(sharpen.bmp)" aria-hidden="true"></div><figcaption><b>Резкость</b>усиленный контраст на границе</figcaption></figure>
+  <figure><img src="gray.bmp" alt="серый"><figcaption><b>Серый</b>среднее трёх каналов</figcaption></figure>
   <figure><img src="exposure.bmp" alt="осветлённый кадр"><figcaption><b>Экспозиция +1 EV</b>значения каналов удвоены</figcaption></figure>
   <figure><img src="edges.bmp" alt="границы цветных областей"><figcaption><b>Контуры</b>ядро 3×3 выделяет перепады яркости каналов</figcaption></figure>
-  <figure><img src="blur_4.bmp" alt="размытие в 4 потока"><figcaption><b>Размытие, 4 потока</b>те же полосы строк, картинка как у одного потока</figcaption></figure>
+</div>
+<h2>Как меняется кадр после каждой стадии</h2>
+<p>Каждый следующий фильтр получает результат предыдущего. Под кадрами увеличен один и тот же фрагмент границы.</p>
+<div class="grid">
+  <figure><a href="input.bmp"><img src="input.bmp" alt="Исходный кадр"></a><div class="detail" style="background-image:url(input.bmp)" aria-hidden="true"></div><figcaption><b>Исходный кадр</b></figcaption></figure>
+  <figure><a href="blur.bmp"><img src="blur.bmp" alt="Стадия 1 · Размытие"></a><div class="detail" style="background-image:url(blur.bmp)" aria-hidden="true"></div><figcaption><b>Стадия 1 · Размытие</b></figcaption></figure>
+  <figure><a href="stage-2.bmp"><img src="stage-2.bmp" alt="Стадия 2 · Резкость"></a><div class="detail" style="background-image:url(stage-2.bmp)" aria-hidden="true"></div><figcaption><b>Стадия 2 · Резкость</b></figcaption></figure>
+  <figure><a href="stage-3.bmp"><img src="stage-3.bmp" alt="Стадия 3 · Оттенки серого"></a><div class="detail" style="background-image:url(stage-3.bmp)" aria-hidden="true"></div><figcaption><b>Стадия 3 · Оттенки серого</b></figcaption></figure>
+  <figure><a href="stage-4.bmp"><img src="stage-4.bmp" alt="Стадия 4 · Экспозиция +1 EV"></a><div class="detail" style="background-image:url(stage-4.bmp)" aria-hidden="true"></div><figcaption><b>Стадия 4 · Экспозиция +1 EV</b></figcaption></figure>
+  <figure><a href="combined.bmp"><img src="combined.bmp" alt="Стадия 5 · Контуры"></a><div class="detail" style="background-image:url(combined.bmp)" aria-hidden="true"></div><figcaption><b>Стадия 5 · Контуры</b></figcaption></figure>
 </div>
 </main>
 </body>
