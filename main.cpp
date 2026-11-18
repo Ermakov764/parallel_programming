@@ -1,6 +1,7 @@
 #include "bmp.hpp"
 #include "batch.hpp"
 #include <exception>
+#include <stdexcept>
 #include "filters.hpp"
 #include "demo.hpp"
 #include <iostream>
@@ -38,7 +39,10 @@ static int run(int argc, char** argv)
     int threads = 1;
     if (argc == 5)
     {
-        threads = std::atoi(argv[4]);
+        size_t used = 0;
+        threads = std::stoi(argv[4], &used);
+        if (used != std::string(argv[4]).size())
+            throw std::invalid_argument("invalid thread count");
         if (threads < 1)
         {
             std::cerr << "число потоков должно быть >= 1\n";

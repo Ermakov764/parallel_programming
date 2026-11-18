@@ -137,11 +137,16 @@ Image Transformation::apply(const Image& src, int threads) const
         const std::vector<Band> bands = make_bands(src.height, threads);
         std::vector<std::thread> pool;
         pool.reserve(static_cast<size_t>(threads));
+        try {
         for (Band band : bands)
         {
             pool.emplace_back([&src, &dst, filter, band]() {
                 process_rows(src, dst, filter, band.y0, band.y1);
             });
+        }
+        } catch (...) {
+            for (auto& worker : pool) worker.join();
+            throw;
         }
         // Ждём все полосы: дальше dst уже можно сохранять.
         for (std::thread& worker : pool)

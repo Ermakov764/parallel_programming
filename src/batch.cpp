@@ -3,6 +3,7 @@
 #include "pipeline.hpp"
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
@@ -12,7 +13,7 @@
 int run_batch(int argc, char** argv) {
     namespace fs = std::filesystem;
     using Clock = std::chrono::steady_clock;
-    if (argc != 7) throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS");
+    if (argc != 7) throw std::invalid_argument("usage: --batch INPUT_DIR OUTPUT_DIR image|stage|pipeline THREADS --csv");
     const fs::path input = fs::u8path(argv[2]);
     const fs::path output = fs::u8path(argv[3]);
     if (fs::weakly_canonical(input) == fs::weakly_canonical(output))
