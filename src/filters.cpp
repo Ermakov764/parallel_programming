@@ -15,8 +15,6 @@ struct Kernel
     int div;
 };
 
-// BMP хранит числа little-endian: младший байт идёт первым.
-
 static int clamp_int(int v, int lo, int hi)
 {
     if (v < lo)
@@ -35,6 +33,25 @@ static Kernel sharpen_kernel()
 {
     Kernel k = {{0, -1, 0, -1, 5, -1, 0, -1, 0}, 1};
     return k;
+}
+
+static Kernel edges_kernel()
+{
+    return {{-1, -1, -1, -1, 8, -1, -1, -1, -1}, 1};
+}
+
+static void exposure_rows(const Image& src, Image& dst, int y0, int y1)
+{
+    for (int y = y0; y < y1; ++y)
+    {
+        for (int x = 0; x < src.width; ++x)
+        {
+            const uint8_t* pixel = src.pixel(x, y);
+            uint8_t* output = dst.pixel(x, y);
+            for (int channel = 0; channel < 3; ++channel)
+                output[channel] = static_cast<uint8_t>(clamp_int(2 * pixel[channel], 0, 255));
+        }
+    }
 }
 
 static void gray_rows(const Image& src, Image& dst, int y0, int y1)
@@ -91,12 +108,14 @@ static void conv_rows(const Image& src, Image& dst, const Kernel& kernel, int y0
 
 static void process_rows(const Image& src, Image& dst, Filter filter, int y0, int y1)
 {
-    if (filter == Filter::Gray)
-        gray_rows(src, dst, y0, y1);
-    else if (filter == Filter::Blur)
-        conv_rows(src, dst, blur_kernel(), y0, y1);
-    else
-        conv_rows(src, dst, sharpen_kernel(), y0, y1);
+    switch (filter)
+    {
+    case Filter::Gray:     return gray_rows(src, dst, y0, y1);
+    case Filter::Exposure: return exposure_rows(src, dst, y0, y1);
+    case Filter::Blur:     return conv_rows(src, dst, blur_kernel(), y0, y1);
+    case Filter::Sharpen:  return conv_rows(src, dst, sharpen_kernel(), y0, y1);
+    case Filter::Edges:    return conv_rows(src, dst, edges_kernel(), y0, y1);
+    }
 }
 
 static std::vector<Band> make_bands(int height, int threads)
@@ -163,6 +182,10 @@ bool parse_filter(const std::string& name, Filter& filter)
         filter = Filter::Sharpen;
     else if (name == "серый" || name == "gray")
         filter = Filter::Gray;
+    else if (name == "экспозиция" || name == "exposure")
+        filter = Filter::Exposure;
+    else if (name == "контуры" || name == "edges")
+        filter = Filter::Edges;
     else
         return false;
     return true;

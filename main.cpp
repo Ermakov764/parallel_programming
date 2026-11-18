@@ -13,7 +13,7 @@ static void usage()
         << "Использование:\n"
         << "  ./filter --demo\n"
         << "  ./filter --batch INPUT_DIR OUTPUT_DIR file-first|stage-first|pipeline THREADS --csv|--cpu-csv\n"
-        << "  ./filter вход.bmp выход.bmp размытие|резкость|серый [потоки]\n"
+        << "  ./filter вход.bmp выход.bmp размытие|резкость|серый|экспозиция|контуры [потоки]\n"
         << "\nThreads: positive integer, supported by every filter.\n";
 }
 static int parse_threads(const std::string& value)

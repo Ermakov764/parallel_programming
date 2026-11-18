@@ -24,14 +24,19 @@ def pixels(path):
 
 def reference(image, name):
     height, width = len(image), len(image[0])
-    kernel = [1] * 9 if name == 'blur' else [0, -1, 0, -1, 5, -1, 0, -1, 0]
+    kernels = {'blur': [1] * 9,
+               'sharpen': [0, -1, 0, -1, 5, -1, 0, -1, 0],
+               'edges': [-1, -1, -1, -1, 8, -1, -1, -1, -1]}
     result = []
     for y in range(height):
         row = []
         for x in range(width):
             if name == 'gray':
                 row.append([sum(image[y][x]) // 3] * 3)
+            elif name == 'exposure':
+                row.append([min(255, channel * 2) for channel in image[y][x]])
             else:
+                kernel = kernels[name]
                 values = [image[min(height - 1, max(0, y + dy))][min(width - 1, max(0, x + dx))]
                           for dy in (-1, 0, 1) for dx in (-1, 0, 1)]
                 row.append([min(255, max(0, int(sum(p[c] * k for p, k in zip(values, kernel)) /
@@ -49,7 +54,7 @@ class PipelineTests(unittest.TestCase):
             expected = {}
             for path in sorted(source.glob('*.bmp')):
                 image = pixels(path)
-                for name in ('blur', 'sharpen', 'gray'):
+                for name in ('blur', 'sharpen', 'gray', 'exposure', 'edges'):
                     for threads in (1, 2, 8):
                         out = root / 'single.bmp'
                         subprocess.run([BINARY, path, out, name, str(threads)], check=True, capture_output=True)

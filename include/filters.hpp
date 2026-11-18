@@ -5,7 +5,9 @@ enum class Filter
 {
     Blur,     // размытие, окно 3×3
     Sharpen,  // резкость, окно 3×3
-    Gray      // серый, соседние пиксели не нужны
+    Gray,     // серый, соседние пиксели не нужны
+    Exposure, // экспозиция +1 EV
+    Edges     // контуры, окно 3×3
 };
 
 // A transformation owns its filter; execution policy is supplied by the caller.
